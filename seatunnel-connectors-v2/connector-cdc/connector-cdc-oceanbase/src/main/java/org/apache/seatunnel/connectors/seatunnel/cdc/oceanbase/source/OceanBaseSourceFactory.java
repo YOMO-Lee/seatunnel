@@ -13,6 +13,7 @@ import org.apache.seatunnel.api.table.factory.TableSourceFactoryContext;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.OceanBaseConfig;
 
 import com.google.auto.service.AutoService;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.OceanBaseOption;
 
 import java.io.Serializable;
 import java.util.List;
@@ -21,16 +22,18 @@ import java.util.List;
 public class OceanBaseSourceFactory implements TableSourceFactory {
     @Override
     public String factoryIdentifier() {
-        return OceanBaseConfig.CONNECTOR_NAME;
+        return OceanBaseOption.CONNECTOR_NAME;
     }
 
     @Override
     public OptionRule optionRule() {
         return OptionRule.builder()
-                .required(
-                        OceanBaseConfig.USERNAME,
-                        OceanBaseConfig.PASSWORD)
-                .optional(OceanBaseConfig.PORT)
+                // .required(
+                //         OceanBaseOption.DATABASE_NAME,
+                //         OceanBaseOption.TABLE_NAME,
+                //         OceanBaseOption.PD_ADDRESSES)
+                .optional(
+                        OceanBaseOption.STARTUP_MODE)
                 .build();
     }
 
@@ -44,11 +47,10 @@ public class OceanBaseSourceFactory implements TableSourceFactory {
     @Override
     public <T, SplitT extends SourceSplit, StateT extends Serializable> TableSource<T, SplitT, StateT> createSource(TableSourceFactoryContext context) {
         ReadonlyConfig config = context.getOptions();
-        OceanBaseConfig sourceConfig = new OceanBaseConfig(config);
         List<CatalogTable> catalogTables = CatalogTableUtil.getCatalogTables(context.getOptions(), context.getClassLoader());
         return () ->
                 (SeaTunnelSource<T, SplitT, StateT>)
-                        new OceanBaseSource(sourceConfig, catalogTables);
+                        new OceanBaseSource(context.getOptions(), catalogTables);
     }
 
 }

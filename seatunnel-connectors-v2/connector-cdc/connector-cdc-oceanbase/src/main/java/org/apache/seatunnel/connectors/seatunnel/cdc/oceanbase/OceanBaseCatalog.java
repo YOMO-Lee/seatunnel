@@ -7,6 +7,7 @@ import org.apache.seatunnel.api.table.catalog.Catalog;
 import org.apache.seatunnel.api.table.factory.CatalogFactory;
 import org.apache.seatunnel.api.table.factory.Factory;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.OceanBaseConfig;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.OceanBaseOption;
 
 /**
  * @类描述 TODO
@@ -30,7 +31,7 @@ public class OceanBaseCatalog implements CatalogFactory {
 
     @Override
     public String factoryIdentifier() {
-        return OceanBaseConfig.CONNECTOR_NAME;
+        return OceanBaseOption.CONNECTOR_NAME;
     }
 
     @Override
