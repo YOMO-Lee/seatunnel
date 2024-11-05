@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.reader;
+package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source;
 
 import org.apache.seatunnel.api.table.type.SeaTunnelRowType;
 import org.apache.seatunnel.common.utils.ReflectionUtils;
@@ -30,8 +30,8 @@ import org.apache.seatunnel.connectors.cdc.base.source.split.SourceSplitBase;
 import org.apache.seatunnel.connectors.cdc.debezium.EmbeddedDatabaseHistory;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.OceanBaseConfig;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.offset.BinlogOffset;
-import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlConnectionUtils;
-import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlUtils;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseConnectionUtils;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseUtils;
 
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -78,14 +78,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.offset.BinlogOffset.BINLOG_FILENAME_OFFSET_KEY;
-import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlConnectionUtils.createBinaryClient;
-import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlConnectionUtils.createMySqlConnection;
+import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseConnectionUtils.createBinaryClient;
+import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseConnectionUtils.createMySqlConnection;
 
 /** The context for fetch task that fetching data of snapshot split from MySQL data source. */
 @Slf4j
-public class MySqlSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
+public class OceanBaseSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MySqlSourceFetchTaskContext.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(OceanBaseSourceFetchTaskContext.class);
 
     private final MySqlConnection connection;
     private final BinaryLogClient binaryLogClient;
@@ -102,7 +103,7 @@ public class MySqlSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
     private MySqlErrorHandler errorHandler;
     private RelationalDatabaseConnectorConfig dbzConnectorConfig;
 
-    public MySqlSourceFetchTaskContext(
+    public OceanBaseSourceFetchTaskContext(
             JdbcSourceConfig sourceConfig, JdbcDataSourceDialect dataSourceDialect) {
         super(sourceConfig, dataSourceDialect);
         this.dbzConnectorConfig = sourceConfig.getDbzConnectorConfig();
@@ -121,7 +122,7 @@ public class MySqlSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
         this.topicSelector = MySqlTopicSelector.defaultSelector(connectorConfig);
 
         this.databaseSchema =
-                MySqlConnectionUtils.createMySqlDatabaseSchema(
+                OceanBaseConnectionUtils.createMySqlDatabaseSchema(
                         connectorConfig, tableIdCaseInsensitive);
         this.offsetContext =
                 loadStartingOffsetState(
@@ -242,7 +243,7 @@ public class MySqlSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
 
     @Override
     public SeaTunnelRowType getSplitType(Table table) {
-        return MySqlUtils.getSplitType(table, dbzConnectorConfig);
+        return OceanBaseUtils.getSplitType(table, dbzConnectorConfig);
     }
 
     @Override
@@ -262,7 +263,7 @@ public class MySqlSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
 
     @Override
     public Offset getStreamOffset(SourceRecord sourceRecord) {
-        return MySqlUtils.getBinlogPosition(sourceRecord);
+        return OceanBaseUtils.getBinlogPosition(sourceRecord);
     }
 
     /** Loads the connector's persistent offset (if present) via the given loader. */

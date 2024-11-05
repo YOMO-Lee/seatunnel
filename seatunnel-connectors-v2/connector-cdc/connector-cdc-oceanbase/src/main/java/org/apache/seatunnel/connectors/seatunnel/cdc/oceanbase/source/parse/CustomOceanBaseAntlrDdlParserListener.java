@@ -17,6 +17,13 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.parse;
 
+import org.apache.seatunnel.api.table.event.AlterTableColumnEvent;
+
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.ParseTreeListener;
+import org.antlr.v4.runtime.tree.TerminalNode;
+
 import io.debezium.antlr.AntlrDdlParserListener;
 import io.debezium.antlr.ProxyParseTreeListenerUtil;
 import io.debezium.connector.mysql.antlr.MySqlAntlrDdlParser;
@@ -24,11 +31,6 @@ import io.debezium.ddl.parser.mysql.generated.MySqlParser;
 import io.debezium.ddl.parser.mysql.generated.MySqlParserBaseListener;
 import io.debezium.relational.RelationalDatabaseConnectorConfig;
 import io.debezium.text.ParsingException;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import org.apache.seatunnel.api.table.event.AlterTableColumnEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +39,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /** This listener's constructor will use some modified listener. */
-public class CustomMySqlAntlrDdlParserListener extends MySqlParserBaseListener
+public class CustomOceanBaseAntlrDdlParserListener extends MySqlParserBaseListener
         implements AntlrDdlParserListener {
 
     /** Collection of listeners for delegation of events. */
@@ -56,7 +58,7 @@ public class CustomMySqlAntlrDdlParserListener extends MySqlParserBaseListener
     /** Collection of catched exceptions. */
     private final Collection<ParsingException> errors = new ArrayList<>();
 
-    public CustomMySqlAntlrDdlParserListener(
+    public CustomOceanBaseAntlrDdlParserListener(
             RelationalDatabaseConnectorConfig dbzConnectorConfig,
             MySqlAntlrDdlParser parser,
             LinkedList<AlterTableColumnEvent> parsedEvents) {

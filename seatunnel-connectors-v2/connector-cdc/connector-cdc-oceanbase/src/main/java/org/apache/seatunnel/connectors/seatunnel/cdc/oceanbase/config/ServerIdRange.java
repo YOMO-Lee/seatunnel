@@ -20,7 +20,6 @@ package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config;
 import org.apache.seatunnel.connectors.cdc.base.option.JdbcSourceOptions;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Random;
 
 import static org.apache.seatunnel.shade.com.google.common.base.Preconditions.checkArgument;

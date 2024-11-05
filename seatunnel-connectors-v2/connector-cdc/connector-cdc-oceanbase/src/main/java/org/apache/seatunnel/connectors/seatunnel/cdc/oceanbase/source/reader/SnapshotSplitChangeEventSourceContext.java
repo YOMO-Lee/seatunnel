@@ -17,8 +17,9 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.reader;
 
-import io.debezium.pipeline.source.spi.ChangeEventSource;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.offset.BinlogOffset;
+
+import io.debezium.pipeline.source.spi.ChangeEventSource;
 
 public class SnapshotSplitChangeEventSourceContext
         implements ChangeEventSource.ChangeEventSourceContext {

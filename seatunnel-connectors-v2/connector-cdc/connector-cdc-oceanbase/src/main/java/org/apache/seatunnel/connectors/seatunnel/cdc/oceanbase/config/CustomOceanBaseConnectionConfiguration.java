@@ -27,7 +27,7 @@ import java.sql.SQLException;
 
 import static io.debezium.connector.mysql.MySqlConnectorConfig.JDBC_DRIVER;
 
-public class CustomMySqlConnectionConfiguration
+public class CustomOceanBaseConnectionConfiguration
         extends MySqlConnection.MySqlConnectionConfiguration {
 
     protected static final String URL_PATTERN =
@@ -35,7 +35,7 @@ public class CustomMySqlConnectionConfiguration
 
     private final JdbcConnection.ConnectionFactory connectionFactory;
 
-    public CustomMySqlConnectionConfiguration(Configuration config) {
+    public CustomOceanBaseConnectionConfiguration(Configuration config) {
         super(config);
         String driverClassName =
                 config.getString(JDBC_DRIVER.name(), JDBC_DRIVER.defaultValueAsString());

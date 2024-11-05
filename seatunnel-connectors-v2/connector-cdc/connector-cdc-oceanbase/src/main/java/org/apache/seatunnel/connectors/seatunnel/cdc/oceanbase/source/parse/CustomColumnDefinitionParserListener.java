@@ -17,6 +17,8 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.parse;
 
+import org.antlr.v4.runtime.tree.ParseTreeListener;
+
 import io.debezium.antlr.AntlrDdlParser;
 import io.debezium.antlr.DataTypeResolver;
 import io.debezium.connector.mysql.antlr.MySqlAntlrDdlParser;
@@ -28,7 +30,6 @@ import io.debezium.relational.ColumnEditor;
 import io.debezium.relational.ddl.DataType;
 import io.debezium.util.Strings;
 import lombok.extern.slf4j.Slf4j;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 import java.sql.Types;
 import java.util.List;

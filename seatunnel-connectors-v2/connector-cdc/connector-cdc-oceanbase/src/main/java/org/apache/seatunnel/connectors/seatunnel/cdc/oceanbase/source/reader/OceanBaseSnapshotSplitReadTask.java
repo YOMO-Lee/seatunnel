@@ -17,40 +17,55 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.reader;
 
+import org.apache.seatunnel.connectors.cdc.base.relational.JdbcSourceEventDispatcher;
+import org.apache.seatunnel.connectors.cdc.base.source.split.SnapshotSplit;
+import org.apache.seatunnel.connectors.cdc.base.source.split.wartermark.WatermarkKind;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.offset.BinlogOffset;
+
+import org.apache.kafka.connect.errors.ConnectException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.debezium.DebeziumException;
-import io.debezium.connector.mysql.*;
+import io.debezium.connector.mysql.MySqlConnection;
+import io.debezium.connector.mysql.MySqlConnectorConfig;
+import io.debezium.connector.mysql.MySqlDatabaseSchema;
+import io.debezium.connector.mysql.MySqlOffsetContext;
+import io.debezium.connector.mysql.MySqlPartition;
+import io.debezium.connector.mysql.MySqlValueConverters;
 import io.debezium.pipeline.EventDispatcher;
 import io.debezium.pipeline.source.AbstractSnapshotChangeEventSource;
 import io.debezium.pipeline.source.spi.SnapshotProgressListener;
 import io.debezium.pipeline.spi.ChangeRecordEmitter;
 import io.debezium.pipeline.spi.SnapshotResult;
-import io.debezium.relational.*;
+import io.debezium.relational.Column;
+import io.debezium.relational.RelationalSnapshotChangeEventSource;
+import io.debezium.relational.SnapshotChangeRecordEmitter;
+import io.debezium.relational.Table;
+import io.debezium.relational.TableId;
 import io.debezium.util.Clock;
 import io.debezium.util.ColumnUtils;
 import io.debezium.util.Strings;
 import io.debezium.util.Threads;
-import org.apache.kafka.connect.errors.ConnectException;
-import org.apache.seatunnel.connectors.cdc.base.relational.JdbcSourceEventDispatcher;
-import org.apache.seatunnel.connectors.cdc.base.source.split.SnapshotSplit;
-import org.apache.seatunnel.connectors.cdc.base.source.split.wartermark.WatermarkKind;
-import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.offset.BinlogOffset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.*;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.time.Duration;
 import java.util.Calendar;
 
-import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlConnectionUtils.currentBinlogOffset;
-import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlUtils.buildSplitScanQuery;
-import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlUtils.readTableSplitDataStatement;
+import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseConnectionUtils.currentBinlogOffset;
+import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseUtils.buildSplitScanQuery;
+import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseUtils.readTableSplitDataStatement;
 
-
-public class MySqlSnapshotSplitReadTask
+public class OceanBaseSnapshotSplitReadTask
         extends AbstractSnapshotChangeEventSource<MySqlPartition, MySqlOffsetContext> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MySqlSnapshotSplitReadTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OceanBaseSnapshotSplitReadTask.class);
 
     /** Interval for showing a log statement with the progress while scanning a single table. */
     private static final Duration LOG_INTERVAL = Duration.ofMillis(10_000);
@@ -64,7 +79,7 @@ public class MySqlSnapshotSplitReadTask
     private final MySqlOffsetContext offsetContext;
     private final SnapshotProgressListener<MySqlPartition> snapshotProgressListener;
 
-    public MySqlSnapshotSplitReadTask(
+    public OceanBaseSnapshotSplitReadTask(
             MySqlConnectorConfig connectorConfig,
             MySqlOffsetContext previousOffset,
             SnapshotProgressListener<MySqlPartition> snapshotProgressListener,
@@ -111,8 +126,7 @@ public class MySqlSnapshotSplitReadTask
     protected SnapshotResult<MySqlOffsetContext> doExecute(
             ChangeEventSourceContext context,
             MySqlOffsetContext previousOffset,
-            SnapshotContext<MySqlPartition, MySqlOffsetContext>
-                    snapshotContext,
+            SnapshotContext<MySqlPartition, MySqlOffsetContext> snapshotContext,
             SnapshottingTask snapshottingTask)
             throws Exception {
         final MySqlSnapshotContext ctx = (MySqlSnapshotContext) snapshotContext;

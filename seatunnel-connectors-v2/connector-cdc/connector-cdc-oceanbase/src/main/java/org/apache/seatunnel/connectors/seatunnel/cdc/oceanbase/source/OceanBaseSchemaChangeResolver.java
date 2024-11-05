@@ -17,9 +17,6 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source;
 
-import io.debezium.relational.Tables;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.seatunnel.api.table.catalog.TableIdentifier;
 import org.apache.seatunnel.api.table.catalog.TablePath;
 import org.apache.seatunnel.api.table.event.AlterTableColumnEvent;
@@ -31,16 +28,22 @@ import org.apache.seatunnel.connectors.cdc.base.config.SourceConfig;
 import org.apache.seatunnel.connectors.cdc.base.schema.AbstractSchemaChangeResolver;
 import org.apache.seatunnel.connectors.cdc.base.utils.SourceRecordUtils;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.OceanBaseOption;
-import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.parse.CustomMySqlAntlrDdlParser;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.parse.CustomOceanBaseAntlrDdlParser;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.connect.source.SourceRecord;
+
+import io.debezium.relational.Tables;
 
 import java.util.List;
 import java.util.Objects;
 
-public class MySqlSchemaChangeResolver extends AbstractSchemaChangeResolver {
+public class OceanBaseSchemaChangeResolver extends AbstractSchemaChangeResolver {
     private transient Tables tables;
-    private transient CustomMySqlAntlrDdlParser customMySqlAntlrDdlParser;
+    private transient CustomOceanBaseAntlrDdlParser customOceanBaseAntlrDdlParser;
 
-    public MySqlSchemaChangeResolver(SourceConfig.Factory<JdbcSourceConfig> sourceConfigFactory) {
+    public OceanBaseSchemaChangeResolver(
+            SourceConfig.Factory<JdbcSourceConfig> sourceConfigFactory) {
         super(sourceConfigFactory.create(0));
     }
 
@@ -48,20 +51,20 @@ public class MySqlSchemaChangeResolver extends AbstractSchemaChangeResolver {
     public SchemaChangeEvent resolve(SourceRecord record, SeaTunnelDataType dataType) {
         TablePath tablePath = SourceRecordUtils.getTablePath(record);
         String ddl = SourceRecordUtils.getDdl(record);
-        if (Objects.isNull(customMySqlAntlrDdlParser)) {
-            this.customMySqlAntlrDdlParser =
-                    new CustomMySqlAntlrDdlParser(
+        if (Objects.isNull(customOceanBaseAntlrDdlParser)) {
+            this.customOceanBaseAntlrDdlParser =
+                    new CustomOceanBaseAntlrDdlParser(
                             tablePath, this.jdbcSourceConfig.getDbzConnectorConfig());
         }
         if (Objects.isNull(tables)) {
             this.tables = new Tables();
         }
-        customMySqlAntlrDdlParser.setCurrentDatabase(tablePath.getDatabaseName());
-        customMySqlAntlrDdlParser.setCurrentSchema(tablePath.getSchemaName());
+        customOceanBaseAntlrDdlParser.setCurrentDatabase(tablePath.getDatabaseName());
+        customOceanBaseAntlrDdlParser.setCurrentSchema(tablePath.getSchemaName());
         // Parse DDL statement using Debezium's Antlr parser
-        customMySqlAntlrDdlParser.parse(ddl, tables);
+        customOceanBaseAntlrDdlParser.parse(ddl, tables);
         List<AlterTableColumnEvent> parsedEvents =
-                customMySqlAntlrDdlParser.getAndClearParsedEvents();
+                customOceanBaseAntlrDdlParser.getAndClearParsedEvents();
         parsedEvents.forEach(e -> e.setSourceDialectName(OceanBaseOption.CONNECTOR_NAME));
         AlterTableColumnsEvent alterTableColumnsEvent =
                 new AlterTableColumnsEvent(

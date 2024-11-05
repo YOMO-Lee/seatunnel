@@ -22,8 +22,8 @@ import org.apache.seatunnel.api.table.type.SeaTunnelRowType;
 import org.apache.seatunnel.connectors.cdc.base.config.JdbcSourceConfig;
 import org.apache.seatunnel.connectors.cdc.base.dialect.JdbcDataSourceDialect;
 import org.apache.seatunnel.connectors.cdc.base.source.enumerator.splitter.AbstractJdbcSourceChunkSplitter;
-import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlTypeUtils;
-import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlUtils;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseTypeUtils;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseUtils;
 
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.Column;
@@ -36,11 +36,11 @@ import java.sql.SQLException;
 
 /** The {@code ChunkSplitter} used to split table into a set of chunks for JDBC data source. */
 @Slf4j
-public class MySqlChunkSplitter extends AbstractJdbcSourceChunkSplitter {
+public class OceanBaseChunkSplitter extends AbstractJdbcSourceChunkSplitter {
 
     private RelationalDatabaseConnectorConfig dbzConnectorConfig;
 
-    public MySqlChunkSplitter(JdbcSourceConfig sourceConfig, JdbcDataSourceDialect dialect) {
+    public OceanBaseChunkSplitter(JdbcSourceConfig sourceConfig, JdbcDataSourceDialect dialect) {
         super(sourceConfig, dialect);
         this.dbzConnectorConfig = sourceConfig.getDbzConnectorConfig();
     }
@@ -48,21 +48,22 @@ public class MySqlChunkSplitter extends AbstractJdbcSourceChunkSplitter {
     @Override
     public Object[] queryMinMax(JdbcConnection jdbc, TableId tableId, String columnName)
             throws SQLException {
-        return MySqlUtils.queryMinMax(jdbc, tableId, columnName);
+        return OceanBaseUtils.queryMinMax(jdbc, tableId, columnName);
     }
 
     @Override
     public Object queryMin(
             JdbcConnection jdbc, TableId tableId, String columnName, Object excludedLowerBound)
             throws SQLException {
-        return MySqlUtils.queryMin(jdbc, tableId, columnName, excludedLowerBound);
+        return OceanBaseUtils.queryMin(jdbc, tableId, columnName, excludedLowerBound);
     }
 
     @Override
     public Object[] sampleDataFromColumn(
             JdbcConnection jdbc, TableId tableId, String columnName, int inverseSamplingRate)
             throws Exception {
-        return MySqlUtils.skipReadAndSortSampleData(jdbc, tableId, columnName, inverseSamplingRate);
+        return OceanBaseUtils.skipReadAndSortSampleData(
+                jdbc, tableId, columnName, inverseSamplingRate);
     }
 
     @Override
@@ -73,23 +74,24 @@ public class MySqlChunkSplitter extends AbstractJdbcSourceChunkSplitter {
             int chunkSize,
             Object includedLowerBound)
             throws SQLException {
-        return MySqlUtils.queryNextChunkMax(
+        return OceanBaseUtils.queryNextChunkMax(
                 jdbc, tableId, columnName, chunkSize, includedLowerBound);
     }
 
     @Override
     public Long queryApproximateRowCnt(JdbcConnection jdbc, TableId tableId) throws SQLException {
-        return MySqlUtils.queryApproximateRowCnt(jdbc, tableId);
+        return OceanBaseUtils.queryApproximateRowCnt(jdbc, tableId);
     }
 
     @Override
     public String buildSplitScanQuery(
             Table table, SeaTunnelRowType splitKeyType, boolean isFirstSplit, boolean isLastSplit) {
-        return MySqlUtils.buildSplitScanQuery(table.id(), splitKeyType, isFirstSplit, isLastSplit);
+        return OceanBaseUtils.buildSplitScanQuery(
+                table.id(), splitKeyType, isFirstSplit, isLastSplit);
     }
 
     @Override
     public SeaTunnelDataType<?> fromDbzColumn(Column splitColumn) {
-        return MySqlTypeUtils.convertFromColumn(splitColumn, dbzConnectorConfig);
+        return OceanBaseTypeUtils.convertFromColumn(splitColumn, dbzConnectorConfig);
     }
 }

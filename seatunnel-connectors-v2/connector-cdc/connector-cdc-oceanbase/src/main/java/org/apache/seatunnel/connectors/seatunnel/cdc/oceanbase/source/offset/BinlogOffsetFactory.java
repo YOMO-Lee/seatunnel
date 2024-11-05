@@ -22,7 +22,7 @@ import org.apache.seatunnel.connectors.cdc.base.source.offset.Offset;
 import org.apache.seatunnel.connectors.cdc.base.source.offset.OffsetFactory;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.OceanBaseConfig;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.OceanBaseConfigFactory;
-import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlConnectionUtils;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseConnectionUtils;
 
 import io.debezium.jdbc.JdbcConnection;
 
@@ -44,7 +44,7 @@ public class BinlogOffsetFactory extends OffsetFactory {
     @Override
     public Offset earliest() {
         try (JdbcConnection jdbcConnection = dialect.openJdbcConnection(sourceConfig)) {
-            return MySqlConnectionUtils.earliestBinlogOffset(jdbcConnection);
+            return OceanBaseConnectionUtils.earliestBinlogOffset(jdbcConnection);
         } catch (Exception e) {
             throw new RuntimeException("Read the binlog offset error", e);
         }
@@ -58,7 +58,7 @@ public class BinlogOffsetFactory extends OffsetFactory {
     @Override
     public Offset latest() {
         try (JdbcConnection jdbcConnection = dialect.openJdbcConnection(sourceConfig)) {
-            return MySqlConnectionUtils.currentBinlogOffset(jdbcConnection);
+            return OceanBaseConnectionUtils.currentBinlogOffset(jdbcConnection);
         } catch (Exception e) {
             throw new RuntimeException("Read the binlog offset error", e);
         }

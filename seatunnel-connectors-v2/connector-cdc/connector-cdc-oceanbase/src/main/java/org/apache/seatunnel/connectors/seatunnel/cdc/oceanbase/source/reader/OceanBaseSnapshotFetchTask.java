@@ -17,6 +17,14 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.reader;
 
+import org.apache.seatunnel.connectors.cdc.base.relational.JdbcSourceEventDispatcher;
+import org.apache.seatunnel.connectors.cdc.base.source.reader.external.FetchTask;
+import org.apache.seatunnel.connectors.cdc.base.source.split.IncrementalSplit;
+import org.apache.seatunnel.connectors.cdc.base.source.split.SnapshotSplit;
+import org.apache.seatunnel.connectors.cdc.base.source.split.SourceSplitBase;
+import org.apache.seatunnel.connectors.cdc.base.source.split.wartermark.WatermarkKind;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.OceanBaseSourceFetchTaskContext;
+
 import io.debezium.config.Configuration;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
 import io.debezium.connector.mysql.MySqlOffsetContext;
@@ -25,36 +33,31 @@ import io.debezium.heartbeat.Heartbeat;
 import io.debezium.pipeline.source.spi.ChangeEventSource;
 import io.debezium.pipeline.spi.SnapshotResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.seatunnel.connectors.cdc.base.relational.JdbcSourceEventDispatcher;
-import org.apache.seatunnel.connectors.cdc.base.source.reader.external.FetchTask;
-import org.apache.seatunnel.connectors.cdc.base.source.split.IncrementalSplit;
-import org.apache.seatunnel.connectors.cdc.base.source.split.SnapshotSplit;
-import org.apache.seatunnel.connectors.cdc.base.source.split.SourceSplitBase;
-import org.apache.seatunnel.connectors.cdc.base.source.split.wartermark.WatermarkKind;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
 @Slf4j
-public class MySqlSnapshotFetchTask implements FetchTask<SourceSplitBase> {
+public class OceanBaseSnapshotFetchTask implements FetchTask<SourceSplitBase> {
 
     private final SnapshotSplit split;
 
     private volatile boolean taskRunning = false;
 
-    private MySqlSnapshotSplitReadTask snapshotSplitReadTask;
+    private OceanBaseSnapshotSplitReadTask snapshotSplitReadTask;
 
-    public MySqlSnapshotFetchTask(SnapshotSplit split) {
+    public OceanBaseSnapshotFetchTask(SnapshotSplit split) {
         this.split = split;
     }
 
     @Override
     public void execute(Context context) throws Exception {
-        MySqlSourceFetchTaskContext sourceFetchContext = (MySqlSourceFetchTaskContext) context;
+        OceanBaseSourceFetchTaskContext sourceFetchContext =
+                (OceanBaseSourceFetchTaskContext) context;
         taskRunning = true;
         snapshotSplitReadTask =
-                new MySqlSnapshotSplitReadTask(
+                new OceanBaseSnapshotSplitReadTask(
                         sourceFetchContext.getDbzConnectorConfig(),
                         sourceFetchContext.getOffsetContext(),
                         sourceFetchContext.getSnapshotChangeEventSourceMetrics(),
@@ -99,7 +102,7 @@ public class MySqlSnapshotFetchTask implements FetchTask<SourceSplitBase> {
             return;
         }
 
-        final MySqlBinlogFetchTask.MySqlBinlogSplitReadTask backfillReadTask =
+        final OceanBaseBinlogFetchTask.MySqlBinlogSplitReadTask backfillReadTask =
                 createBackfillBinlogReadTask(backfillSplit, sourceFetchContext);
         log.info(
                 "start execute backfillReadTask, start offset : {}, stop offset : {}",
@@ -136,8 +139,8 @@ public class MySqlSnapshotFetchTask implements FetchTask<SourceSplitBase> {
                 WatermarkKind.END);
     }
 
-    private MySqlBinlogFetchTask.MySqlBinlogSplitReadTask createBackfillBinlogReadTask(
-            IncrementalSplit backfillBinlogSplit, MySqlSourceFetchTaskContext context) {
+    private OceanBaseBinlogFetchTask.MySqlBinlogSplitReadTask createBackfillBinlogReadTask(
+            IncrementalSplit backfillBinlogSplit, OceanBaseSourceFetchTaskContext context) {
         final MySqlOffsetContext.Loader loader =
                 new MySqlOffsetContext.Loader(context.getSourceConfig().getDbzConnectorConfig());
         final MySqlOffsetContext mySqlOffsetContext =
@@ -154,7 +157,7 @@ public class MySqlSnapshotFetchTask implements FetchTask<SourceSplitBase> {
                         .with(Heartbeat.HEARTBEAT_INTERVAL, 0)
                         .build();
         // task to read binlog and backfill for current split
-        return new MySqlBinlogFetchTask.MySqlBinlogSplitReadTask(
+        return new OceanBaseBinlogFetchTask.MySqlBinlogSplitReadTask(
                 new MySqlConnectorConfig(dezConf),
                 mySqlOffsetContext,
                 context.getConnection(),

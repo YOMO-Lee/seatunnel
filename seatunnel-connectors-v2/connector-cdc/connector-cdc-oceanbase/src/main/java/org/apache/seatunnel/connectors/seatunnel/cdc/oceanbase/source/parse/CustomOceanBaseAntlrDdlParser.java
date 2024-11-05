@@ -17,6 +17,9 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.parse;
 
+import org.apache.seatunnel.api.table.catalog.TablePath;
+import org.apache.seatunnel.api.table.event.AlterTableColumnEvent;
+
 import com.google.common.collect.Lists;
 import io.debezium.antlr.AntlrDdlParserListener;
 import io.debezium.antlr.DataTypeResolver;
@@ -24,8 +27,6 @@ import io.debezium.connector.mysql.antlr.MySqlAntlrDdlParser;
 import io.debezium.ddl.parser.mysql.generated.MySqlParser;
 import io.debezium.relational.RelationalDatabaseConnectorConfig;
 import io.debezium.relational.TableId;
-import org.apache.seatunnel.api.table.catalog.TablePath;
-import org.apache.seatunnel.api.table.event.AlterTableColumnEvent;
 
 import java.sql.Types;
 import java.util.Arrays;
@@ -33,7 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /** A ddl parser that will use custom listener. */
-public class CustomMySqlAntlrDdlParser extends MySqlAntlrDdlParser {
+public class CustomOceanBaseAntlrDdlParser extends MySqlAntlrDdlParser {
 
     private final LinkedList<AlterTableColumnEvent> parsedEvents;
 
@@ -41,7 +42,7 @@ public class CustomMySqlAntlrDdlParser extends MySqlAntlrDdlParser {
 
     private final TablePath tablePath;
 
-    public CustomMySqlAntlrDdlParser(
+    public CustomOceanBaseAntlrDdlParser(
             TablePath tablePath, RelationalDatabaseConnectorConfig dbzConnectorConfig) {
         super();
         this.tablePath = tablePath;
@@ -292,7 +293,7 @@ public class CustomMySqlAntlrDdlParser extends MySqlAntlrDdlParser {
 
     @Override
     protected AntlrDdlParserListener createParseTreeWalkerListener() {
-        return new CustomMySqlAntlrDdlParserListener(dbzConnectorConfig, this, parsedEvents);
+        return new CustomOceanBaseAntlrDdlParserListener(dbzConnectorConfig, this, parsedEvents);
     }
 
     public List<AlterTableColumnEvent> getAndClearParsedEvents() {

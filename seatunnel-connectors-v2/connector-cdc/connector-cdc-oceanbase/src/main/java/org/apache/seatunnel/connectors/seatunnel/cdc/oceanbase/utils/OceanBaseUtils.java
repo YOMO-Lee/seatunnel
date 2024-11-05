@@ -48,9 +48,9 @@ import static org.apache.seatunnel.connectors.cdc.base.utils.SourceRecordUtils.r
 
 /** Utils to prepare MySQL SQL statement. */
 @Slf4j
-public class MySqlUtils {
+public class OceanBaseUtils {
 
-    private MySqlUtils() {}
+    private OceanBaseUtils() {}
 
     public static Object[] queryMinMax(JdbcConnection jdbc, TableId tableId, String columnName)
             throws SQLException {
@@ -352,7 +352,7 @@ public class MySqlUtils {
         return new SeaTunnelRowType(
                 new String[] {splitColumn.name()},
                 new SeaTunnelDataType<?>[] {
-                    MySqlTypeUtils.convertFromColumn(splitColumn, dbzConnectorConfig)
+                    OceanBaseTypeUtils.convertFromColumn(splitColumn, dbzConnectorConfig)
                 });
     }
 

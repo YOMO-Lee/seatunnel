@@ -18,7 +18,7 @@
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils;
 
 import org.apache.seatunnel.common.utils.SeaTunnelException;
-import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.CustomMySqlConnectionConfiguration;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.config.CustomOceanBaseConnectionConfiguration;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.offset.BinlogOffset;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
@@ -41,11 +41,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** MySQL connection Utilities. */
-public class MySqlConnectionUtils {
+public class OceanBaseConnectionUtils {
 
-    /** Creates a new {@link MySqlConnectionUtils}, but not open the connection. */
+    /** Creates a new {@link OceanBaseConnectionUtils}, but not open the connection. */
     public static MySqlConnection createMySqlConnection(Configuration dbzConfiguration) {
-        return new MySqlConnection(new CustomMySqlConnectionConfiguration(dbzConfiguration));
+        return new MySqlConnection(new CustomOceanBaseConnectionConfiguration(dbzConfiguration));
     }
 
     /** Creates a new {@link BinaryLogClient} for consuming mysql binlog. */

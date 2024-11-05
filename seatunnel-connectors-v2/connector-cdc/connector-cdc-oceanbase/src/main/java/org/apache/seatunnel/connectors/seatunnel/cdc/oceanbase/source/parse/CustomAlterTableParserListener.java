@@ -17,6 +17,18 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.parse;
 
+import org.apache.seatunnel.api.table.catalog.TableIdentifier;
+import org.apache.seatunnel.api.table.event.AlterTableAddColumnEvent;
+import org.apache.seatunnel.api.table.event.AlterTableChangeColumnEvent;
+import org.apache.seatunnel.api.table.event.AlterTableColumnEvent;
+import org.apache.seatunnel.api.table.event.AlterTableDropColumnEvent;
+import org.apache.seatunnel.api.table.event.AlterTableModifyColumnEvent;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseTypeUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
+import org.antlr.v4.runtime.tree.ParseTreeListener;
+
 import io.debezium.connector.mysql.antlr.MySqlAntlrDdlParser;
 import io.debezium.ddl.parser.mysql.generated.MySqlParser;
 import io.debezium.ddl.parser.mysql.generated.MySqlParserBaseListener;
@@ -24,11 +36,6 @@ import io.debezium.relational.Column;
 import io.debezium.relational.ColumnEditor;
 import io.debezium.relational.RelationalDatabaseConnectorConfig;
 import io.debezium.relational.TableId;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.seatunnel.api.table.catalog.TableIdentifier;
-import org.apache.seatunnel.api.table.event.*;
-import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlTypeUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -217,7 +224,7 @@ public class CustomAlterTableParserListener extends MySqlParserBaseListener {
     }
 
     private org.apache.seatunnel.api.table.catalog.Column toSeatunnelColumn(Column column) {
-        return MySqlTypeUtils.convertToSeaTunnelColumn(column, dbzConnectorConfig);
+        return OceanBaseTypeUtils.convertToSeaTunnelColumn(column, dbzConnectorConfig);
     }
 
     private TableIdentifier toTableIdentifier(TableId tableId) {

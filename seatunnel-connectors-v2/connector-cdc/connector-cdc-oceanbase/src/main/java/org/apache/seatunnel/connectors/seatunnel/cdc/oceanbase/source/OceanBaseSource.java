@@ -69,8 +69,7 @@ public class OceanBaseSource<T> extends IncrementalSource<T, JdbcSourceConfig>
         OceanBaseConfigFactory configFactory = new OceanBaseConfigFactory();
         configFactory.serverId(config.get(JdbcSourceOptions.SERVER_ID));
         configFactory.fromReadonlyConfig(readonlyConfig);
-        JdbcUrlUtil.UrlInfo urlInfo =
-                JdbcUrlUtil.getUrlInfo(config.get(OceanBaseOption.BASE_URL));
+        JdbcUrlUtil.UrlInfo urlInfo = JdbcUrlUtil.getUrlInfo(config.get(OceanBaseOption.BASE_URL));
         configFactory.originUrl(urlInfo.getOrigin());
         configFactory.hostname(urlInfo.getHost());
         configFactory.port(urlInfo.getPort());
@@ -79,9 +78,15 @@ public class OceanBaseSource<T> extends IncrementalSource<T, JdbcSourceConfig>
         return configFactory;
     }
 
+    // @Override
+    // public SourceReader<T, SourceSplitBase> createReader(SourceReader.Context readerContext)
+    // throws Exception {
+    //     return super.createReader(readerContext);
+    // }
+
     /*
-    * 必须要实现的
-    * */
+     * 必须要实现的
+     * */
     @Override
     public DebeziumDeserializationSchema<T> createDebeziumDeserializationSchema(
             ReadonlyConfig config) {
@@ -93,7 +98,8 @@ public class OceanBaseSource<T> extends IncrementalSource<T, JdbcSourceConfig>
                         .setResultTypeInfo(physicalRowType)
                         .setServerTimeZone(ZoneId.of(zoneId))
                         .setSchemaChangeResolver(
-                                new MySqlSchemaChangeResolver(createSourceConfigFactory(config)))
+                                new OceanBaseSchemaChangeResolver(
+                                        createSourceConfigFactory(config)))
                         .build();
     }
 

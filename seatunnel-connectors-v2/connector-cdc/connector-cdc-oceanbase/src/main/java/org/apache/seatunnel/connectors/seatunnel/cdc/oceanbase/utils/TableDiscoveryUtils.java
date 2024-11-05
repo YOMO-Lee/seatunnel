@@ -17,18 +17,18 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.RelationalTableFilters;
 import io.debezium.relational.TableId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.MySqlUtils.quote;
-
+import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.utils.OceanBaseUtils.quote;
 
 /** Utilities to discovery matched tables. */
 public class TableDiscoveryUtils {

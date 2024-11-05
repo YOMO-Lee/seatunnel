@@ -34,6 +34,7 @@ public class SeaTunnelEngineLocalExample {
         System.setProperty("log4j2.isThreadContextMapInheritable", "true");
     }
 
+
     public static void main(String[] args)
             throws FileNotFoundException, URISyntaxException, CommandException {
         String configurePath = args.length > 0 ? args[0] : "/examples/oceanbase_to_console.conf";

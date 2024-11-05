@@ -17,22 +17,31 @@
 
 package org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.reader;
 
-import com.github.shyiko.mysql.binlog.BinaryLogClient;
-import com.github.shyiko.mysql.binlog.event.Event;
-import io.debezium.DebeziumException;
-import io.debezium.connector.mysql.*;
-import io.debezium.pipeline.ErrorHandler;
-import io.debezium.pipeline.source.spi.ChangeEventSource;
-import io.debezium.util.Clock;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.seatunnel.connectors.cdc.base.relational.JdbcSourceEventDispatcher;
 import org.apache.seatunnel.connectors.cdc.base.source.reader.external.FetchTask;
 import org.apache.seatunnel.connectors.cdc.base.source.split.IncrementalSplit;
 import org.apache.seatunnel.connectors.cdc.base.source.split.SourceSplitBase;
 import org.apache.seatunnel.connectors.cdc.base.source.split.wartermark.WatermarkKind;
+import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.OceanBaseSourceFetchTaskContext;
 import org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.offset.BinlogOffset;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.shyiko.mysql.binlog.BinaryLogClient;
+import com.github.shyiko.mysql.binlog.event.Event;
+import io.debezium.DebeziumException;
+import io.debezium.connector.mysql.MySqlConnection;
+import io.debezium.connector.mysql.MySqlConnectorConfig;
+import io.debezium.connector.mysql.MySqlOffsetContext;
+import io.debezium.connector.mysql.MySqlPartition;
+import io.debezium.connector.mysql.MySqlStreamingChangeEventSource;
+import io.debezium.connector.mysql.MySqlStreamingChangeEventSourceMetrics;
+import io.debezium.connector.mysql.MySqlTaskContext;
+import io.debezium.pipeline.ErrorHandler;
+import io.debezium.pipeline.source.spi.ChangeEventSource;
+import io.debezium.util.Clock;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -40,19 +49,19 @@ import java.util.Map;
 
 import static org.apache.seatunnel.connectors.seatunnel.cdc.oceanbase.source.offset.BinlogOffset.NO_STOPPING_OFFSET;
 
-
 @Slf4j
-public class MySqlBinlogFetchTask implements FetchTask<SourceSplitBase> {
+public class OceanBaseBinlogFetchTask implements FetchTask<SourceSplitBase> {
     private final IncrementalSplit split;
     private volatile boolean taskRunning = false;
 
-    public MySqlBinlogFetchTask(IncrementalSplit split) {
+    public OceanBaseBinlogFetchTask(IncrementalSplit split) {
         this.split = split;
     }
 
     @Override
     public void execute(Context context) throws Exception {
-        MySqlSourceFetchTaskContext sourceFetchContext = (MySqlSourceFetchTaskContext) context;
+        OceanBaseSourceFetchTaskContext sourceFetchContext =
+                (OceanBaseSourceFetchTaskContext) context;
         taskRunning = true;
 
         MySqlStreamingChangeEventSource mySqlStreamingChangeEventSource =
@@ -174,7 +183,8 @@ public class MySqlBinlogFetchTask implements FetchTask<SourceSplitBase> {
                                 new DebeziumException("Error processing binlog signal event", e));
                     }
                     // tell fetcher the binlog task finished
-                    ((MySqlSnapshotFetchTask.SnapshotBinlogSplitChangeEventSourceContext) context)
+                    ((OceanBaseSnapshotFetchTask.SnapshotBinlogSplitChangeEventSourceContext)
+                                    context)
                             .finished();
                 }
             }
